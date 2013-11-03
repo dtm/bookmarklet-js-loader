@@ -1,0 +1,89 @@
+<html>
+<head>
+<title>Bookmarklet Javascript Loader builder</title>
+<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script>
+//<!--
+var pre= [
+"javascript:(function(){",
+"function l(c,f){",
+	"var n=document.createElement('script');",
+	"n.type='text/javascript';",
+	"n.src=c;",
+	"var s=document.body;",
+	"var d=false;",
+	"n.onload=n.onreadystatechange=",
+	"function(){",
+		"if(!d &&(!this.readyState||this.readState=='loaded'",
+		   "||this.readState=='complete')){",
+			"d=true;",
+			"f();",
+			"n.onload=n.onreadystatechange=null;",
+			"if (s) s.removeChild(n);",
+		"}",
+	"};",
+	"if (s) s.appendChild(n);",
+	"}",
+	];
+var post=[
+	"})()"
+	];
+
+function build_bookmarklet(urls, fn)
+{
+	var result;
+	var body = [];
+	var i;
+	for (i=0; i<urls.length; i++) {
+		body.push("l('"+urls[i]+"',function(){");
+		}
+	body.push(fn+"();");
+	for (i=0; i<urls.length; i++) {
+		body.push("});");
+		}
+	return pre.join("") + body.join("") + post.join("");
+	}
+
+function make()
+{
+	var urls = $("textarea[name=urls]").val().split(/\n/);
+	var call = $("input[name=call]").val();
+	var link = $("input[name=link]").val();
+	var bookmarklet = build_bookmarklet(urls, call);
+	$('#output').attr("href",bookmarklet);
+	$('#output').html(link);
+	var html='<a href="'+bookmarklet+'">'+link+'</a>';
+	$('#output_html').text(html).html();
+	return false;
+}
+//-->
+</script
+</head>
+<body>
+	<form onsubmit="return make()">
+		<table>
+			<tr>
+				<th>Link text:</th>
+				<td><input id="call" name="link" type="text"></td>
+			</tr>
+			<tr>
+				<th>Urls:</th>
+				<td><textarea id="urls" name="urls"></textarea></td>
+			</tr>
+			<tr>
+				<th>Callback:</th>
+				<td><input id="call" name="call" type="text"></td>
+			</tr>
+			<tr>
+				<th></th>
+				<td><input type="submit" value="Generate"></td>
+			</tr>
+		</table>
+	</form>
+	<div>
+		<a id="output">my bookmarklet</a>
+		<div>
+	<div id="output_html">
+	</div>
+</body>
+</html>
